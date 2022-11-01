@@ -1,10 +1,17 @@
-import React from 'react';
+import { useState } from 'react';
+
+import ArtistInfo from './components/ArtistInfo';
+import SearchBar from './components/SearchBar';
+import GeneralLayout from './layout/GeneralLayout';
 
 const App = () => {
+  const [artist, setArtist] = useState('');
+
   return (
-    <div>
-      <h1 className="text-3xl font-bold">Hello</h1>
-    </div>
+    <GeneralLayout>
+      <SearchBar setArtist={setArtist} />
+      {artist ? <ArtistInfo artist={artist} /> : null}
+    </GeneralLayout>
   );
 };
 
