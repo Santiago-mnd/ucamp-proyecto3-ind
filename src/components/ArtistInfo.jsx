@@ -25,7 +25,7 @@ const ArtistInfo = ({ artist }) => {
       const response = await fetch(URL, options);
       const data = await response.json();
 
-      if (!data?.album) throw new Error('No albums found');
+      if (!data?.album) return;
 
       const albumGeneralData = data?.album.map(
         ({ intYearReleased, strAlbum, strAlbumThumb, intScore }) => ({
@@ -53,7 +53,7 @@ const ArtistInfo = ({ artist }) => {
 
       const response = await fetch(URL, options);
       const data = await response.json();
-      if (!data?.artists) throw new Error('No artist found');
+      if (!data?.artists) return;
       setArtistData(data?.artists[0]);
     };
 
@@ -73,7 +73,7 @@ const ArtistInfo = ({ artist }) => {
       try {
         const res = await fetch(URL, options);
         const data = await res.json();
-        if (!data?.track) throw new Error('No tracks found');
+        if (!data?.track) return;
         const generalData = data?.track.map(
           ({
             strAlbum,
