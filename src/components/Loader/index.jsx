@@ -5,7 +5,7 @@ const Loader = () => {
     <div className="flex flex-col items-center">
       <span className="loader"></span>
       <p className="text-xl font-bold">
-        ¿Está bien escrito el nombre del artista? 🤔
+        No encuentro información sobre esta banda o artista. 🤔
       </p>
     </div>
   );

@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import BarChart from './BarChart';
-import LineChart from './LineChart';
-import Loader from './Loader';
 import PieChart from './PieChart';
+import Loader from './Loader';
 
 const ArtistInfo = ({ artist }) => {
   // const sanitizedArtist = artist.trim().replaceAll(' ', '_').toLowerCase();
@@ -11,6 +10,7 @@ const ArtistInfo = ({ artist }) => {
   const [artistAlbums, setArtistAlbums] = useState([]);
   useEffect(() => {
     const fetchArtistAlbums = async () => {
+      setArtistAlbums([]);
       const URL = `https://theaudiodb.p.rapidapi.com/searchalbum.php?s=${artist}`;
       const APIKEY = import.meta.env.VITE_APIKEY;
 
@@ -24,11 +24,22 @@ const ArtistInfo = ({ artist }) => {
 
       const response = await fetch(URL, options);
       const data = await response.json();
-      console.log(data?.album);
-      setArtistAlbums(data?.album);
+
+      if (!data?.album) throw new Error('No albums found');
+
+      const albumGeneralData = data?.album.map(
+        ({ intYearReleased, strAlbum, strAlbumThumb, intScore }) => ({
+          year: intYearReleased,
+          album: strAlbum,
+          image: strAlbumThumb,
+          score: intScore,
+        })
+      );
+      setArtistAlbums(albumGeneralData);
     };
 
     const fetchArtistData = async () => {
+      setArtistData([]);
       const URL = `https://theaudiodb.p.rapidapi.com/search.php?s=${artist}`;
       const APIKEY = import.meta.env.VITE_APIKEY;
 
@@ -42,10 +53,12 @@ const ArtistInfo = ({ artist }) => {
 
       const response = await fetch(URL, options);
       const data = await response.json();
+      if (!data?.artists) throw new Error('No artist found');
       setArtistData(data?.artists[0]);
     };
 
     const tracksData = async () => {
+      setArtistTopTracks([]);
       const URL = `https://theaudiodb.p.rapidapi.com/track-top10.php?s=${artist}`;
       const APIKEY = import.meta.env.VITE_APIKEY;
 
@@ -60,7 +73,31 @@ const ArtistInfo = ({ artist }) => {
       try {
         const res = await fetch(URL, options);
         const data = await res.json();
-        setArtistTopTracks(data?.track);
+        if (!data?.track) throw new Error('No tracks found');
+        const generalData = data?.track.map(
+          ({
+            strAlbum,
+            strDescriptionEN,
+            intDuration,
+            intTrackNumber,
+            strGenre,
+            strTrack,
+            strArtist,
+            intTotalPlays,
+            strTrackThumb,
+          }) => ({
+            album: strAlbum,
+            description: strDescriptionEN,
+            duration: Number(intDuration),
+            image: strTrackThumb,
+            trackNumber: intTrackNumber,
+            genre: strGenre,
+            name: strTrack,
+            artist: strArtist,
+            totalPlays: intTotalPlays,
+          })
+        );
+        setArtistTopTracks(generalData);
       } catch (error) {
         console.log(error);
       }
@@ -70,39 +107,6 @@ const ArtistInfo = ({ artist }) => {
     fetchArtistData();
     tracksData();
   }, [artist]);
-
-  const generalData = artistTopTracks.map(
-    ({
-      strAlbum,
-      strDescriptionEN,
-      intDuration,
-      intTrackNumber,
-      strGenre,
-      strTrack,
-      strArtist,
-      intTotalPlays,
-      strTrackThumb,
-    }) => ({
-      album: strAlbum,
-      description: strDescriptionEN,
-      duration: Number(intDuration),
-      image: strTrackThumb,
-      trackNumber: intTrackNumber,
-      genre: strGenre,
-      name: strTrack,
-      artist: strArtist,
-      totalPlays: intTotalPlays,
-    })
-  );
-
-  const albumGeneralData = artistAlbums.map(
-    ({ intYearReleased, strAlbum, strAlbumThumb, intScore }) => ({
-      year: intYearReleased,
-      album: strAlbum,
-      image: strAlbumThumb,
-      score: intScore,
-    })
-  );
 
   const chartColors = [
     'rgba(255, 99, 132, 0.9)',
@@ -114,13 +118,13 @@ const ArtistInfo = ({ artist }) => {
   ];
 
   const chartAlbumData = {
-    labels: albumGeneralData
+    labels: artistAlbums
       .sort((a, b) => a.score - b.score)
       .map(({ album }) => album),
     datasets: [
       {
         label: 'Total Score',
-        data: albumGeneralData.map(({ score }) => score).sort((a, b) => a - b),
+        data: artistAlbums.map(({ score }) => score).sort((a, b) => a - b),
         backgroundColor: chartColors,
         borderColor: ['#000'],
         borderWidth: 1,
@@ -129,11 +133,11 @@ const ArtistInfo = ({ artist }) => {
   };
 
   const chartTracksData = {
-    labels: generalData.map(({ name }) => name),
+    labels: artistTopTracks.map(({ name }) => name),
     datasets: [
       {
         label: 'Total Plays',
-        data: generalData.map(({ totalPlays }) => totalPlays),
+        data: artistTopTracks.map(({ totalPlays }) => totalPlays),
         backgroundColor: chartColors,
         borderColor: ['#000'],
         borderWidth: 1,
@@ -144,7 +148,7 @@ const ArtistInfo = ({ artist }) => {
   return (
     <>
       {artistTopTracks < 1 ? (
-        <div className="w-full flex items-center justify-center">
+        <div className="w-full h-full flex items-center justify-center">
           <Loader />
         </div>
       ) : (
@@ -160,16 +164,24 @@ const ArtistInfo = ({ artist }) => {
               )}
             </div>
             <div className="mx-auto w-full text-xl bg-white p-4 rounded my-4 ">
-              <PieChart chartData={chartTracksData} />
+              {chartTracksData.length !== 0 ? (
+                <PieChart chartData={chartTracksData} />
+              ) : (
+                <Loader />
+              )}
             </div>
             <div className="mx-auto w-full text-xl bg-white p-4 rounded my-4 ">
               <h2 className="font-bold text-white">
                 Canciones más escuchadas:{' '}
               </h2>
-              <BarChart chartData={chartAlbumData} />
+              {chartAlbumData ? (
+                <BarChart chartData={chartAlbumData} />
+              ) : (
+                <Loader />
+              )}
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 ">
-              {generalData.map(
+              {artistTopTracks.map(
                 (
                   {
                     album,
