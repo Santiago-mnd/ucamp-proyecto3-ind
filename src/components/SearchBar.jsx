@@ -8,7 +8,7 @@ const SearchBar = ({ setArtist }) => {
 
   return (
     <form
-      className="w-1/2 mx-auto h-10 flex items-center justify-center"
+      className="w-2/3 mx-auto h-10 flex items-center justify-center md:w-1/2 mt-10 "
       onSubmit={(e) => handleSubmit(e)}
     >
       <label className="sr-only" htmlFor="searchbar">
@@ -21,7 +21,7 @@ const SearchBar = ({ setArtist }) => {
         type="text"
       />
       <button
-        className="w-1/3 h-full bg-gray-800 text-white rounded-r-md"
+        className="w-2/3 h-full bg-gray-800 text-white rounded-r-md text-xs md:text-sm md:w-1/3"
         type="submit"
       >
         Submit
