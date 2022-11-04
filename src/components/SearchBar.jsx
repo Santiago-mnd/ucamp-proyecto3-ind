@@ -21,7 +21,7 @@ const SearchBar = ({ setArtist }) => {
         type="text"
       />
       <button
-        className="w-2/3 h-full bg-gray-800 text-white rounded-r-md text-xs md:text-sm md:w-1/3"
+        className="w-2/3 h-full bg-slate-900 text-white rounded-r-md text-xs md:text-sm md:w-1/3"
         type="submit"
       >
         Submit

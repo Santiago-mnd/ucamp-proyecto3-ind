@@ -28,11 +28,24 @@ const ArtistInfo = ({ artist }) => {
       if (!data?.album) return;
 
       const albumGeneralData = data?.album.map(
-        ({ intYearReleased, strAlbum, strAlbumThumb, intScore }) => ({
-          year: intYearReleased,
+        ({
+          strArtist,
+          strDescriptionEN,
+          intYearReleased,
+          strAlbum,
+          strAlbumThumb,
+          intScore,
+          strGenre,
+          strStyle,
+        }) => ({
           album: strAlbum,
+          artist: strArtist,
+          description: strDescriptionEN,
+          genre: strGenre,
           image: strAlbumThumb,
           score: intScore,
+          musicStyle: strStyle,
+          year: intYearReleased,
         })
       );
       setArtistAlbums(albumGeneralData);
@@ -185,14 +198,13 @@ const ArtistInfo = ({ artist }) => {
                 (
                   {
                     album,
+                    artist,
                     description,
-                    duration,
-                    trackNumber,
                     genre,
                     image,
-                    name,
-                    artist,
-                    totalPlays,
+                    score,
+                    musicStyle,
+                    year,
                   },
                   i
                 ) => (
@@ -210,7 +222,7 @@ const ArtistInfo = ({ artist }) => {
                       alt={album ? album : 'No album art'}
                     />
                     <h2 className="text-xl font-bold mt-4">
-                      {name ? name : 'No disponible'}
+                      {album ? album : 'No disponible'}
                     </h2>
                     <p className="text-gray-500">
                       <span className="font-bold">Album: </span>{' '}
@@ -221,15 +233,12 @@ const ArtistInfo = ({ artist }) => {
                       {description ? description : 'No disponible'}
                     </p>
                     <p className="text-gray-500">
-                      <span className="font-bold">Duración aproximada: </span>
-                      {duration
-                        ? Math.floor(duration / 60000)
-                        : 'No disponible'}{' '}
-                      min.
+                      <span className="font-bold">Estilo: </span>
+                      {musicStyle ? musicStyle : 'No disponible'}
                     </p>
                     <p className="text-gray-500">
-                      <span className="font-bold">Número de pista: </span>
-                      {trackNumber ? trackNumber : 'No disponible'}
+                      <span className="font-bold">Año de lanzamiento: </span>
+                      {year ? year : 'No disponible'}
                     </p>
                     <p className="text-gray-500">
                       <span className="font-bold">Género: </span>
@@ -240,10 +249,8 @@ const ArtistInfo = ({ artist }) => {
                       {artist ? artist : 'No disponible'}
                     </p>
                     <p className="text-gray-500">
-                      <span className="font-bold">
-                        Total de reproducciones:{' '}
-                      </span>
-                      {totalPlays ? totalPlays : 'No disponible'}
+                      <span className="font-bold">Calificación: </span>
+                      {score ? score : 'No disponible'}
                     </p>
                   </div>
                 )
